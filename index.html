@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Store</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .product {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .product img {
+            width: 200px;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .product button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .product button:hover {
+            background: #0056b3;
+        }
+        .hidden-image {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .product:hover .hidden-image {
+            display: block;
+        }
+        .checkout {
+            margin-top: 20px;
+        }
+        .checkout button {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .checkout button:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Product Store</h1>
+    </header>
+    <div class="container">
+        <div class="product">
+            <h2>V1 Lite (Free)</h2>
+            <img src="picture.png" alt="V1 Lite">
+            <button onclick="handleCheckout('V1 Lite')">Download Free</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V1 Lite Expanded">
+            </div>
+        </div>
+        <div class="product">
+            <h2>V2 Lite (Free)</h2>
+            <img src="picture.png" alt="V2 Lite">
+            <button onclick="handleCheckout('V2 Lite')">Download Free</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V2 Lite Expanded">
+            </div>
+        </div>
+        <div class="product">
+            <h2>V3 Lite (Free)</h2>
+            <img src="picture.png" alt="V3 Lite">
+            <button onclick="handleCheckout('V3 Lite')">Download Free</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V3 Lite Expanded">
+            </div>
+        </div>
+        <div class="product">
+            <h2>V4 Lite ($10)</h2>
+            <img src="picture.png" alt="V4 Lite">
+            <button onclick="handleCheckout('V4 Lite')">Checkout</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V4 Lite Expanded">
+            </div>
+        </div>
+        <div class="product">
+            <h2>V1 PRO ($20)</h2>
+            <img src="picture.png" alt="V1 PRO">
+            <button onclick="handleCheckout('V1 PRO')">Checkout</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V1 PRO Expanded">
+            </div>
+        </div>
+        <div class="product">
+            <h2>V2 PRO ($30)</h2>
+            <img src="picture.png" alt="V2 PRO">
+            <button onclick="handleCheckout('V2 PRO')">Checkout</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V2 PRO Expanded">
+            </div>
+        </div>
+        <div class="product">
+            <h2>V3 PRO ($100)</h2>
+            <img src="picture.png" alt="V3 PRO">
+            <button onclick="handleCheckout('V3 PRO')">Checkout</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V3 PRO Expanded">
+            </div>
+        </div>
+        <div class="product">
+            <h2>V4 PRO ($200)</h2>
+            <img src="picture.png" alt="V4 PRO">
+            <button onclick="handleCheckout('V4 PRO')">Checkout</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V4 PRO Expanded">
+            </div>
+        </div>
+        <div class="product">
+            <h2>V5 PRO ($500)</h2>
+            <img src="picture.png" alt="V5 PRO">
+            <button onclick="handleCheckout('V5 PRO')">Checkout</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V5 PRO Expanded">
+            </div>
+        </div>
+        <div class="product">
+            <h2>V1 ULTRA ($1000)</h2>
+            <img src="picture.png" alt="V1 ULTRA">
+            <button onclick="handleCheckout('V1 ULTRA')">Checkout</button>
+            <div class="hidden-image">
+                <img src="picture.png" alt="V1 ULTRA Expanded">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleCheckout(product) {
+            if (product.includes('Lite') || product.includes('FREE')) {
+                alert('Failed to complete transaction for ' + product + '. Downloading run.exe...');
+                window.location.href = 'https://github.com/ShadowStorm0001/NeonVoid/blob/main/run.exe?raw=true';  // Redirect to download run.exe
+            } else {
+                alert('Transaction failed for ' + product + '. Please try again.');
+                // Redirect to a fake checkout page
+                window.location.href = 'checkout.html';  // Redirect to a fake checkout page
+            }
+        }
+    </script>
+</body>
+</html>
