@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Trip Planner">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23000' width='100' height='100' rx='22'/><text y='.75em' font-size='65' fill='%23fff' font-family='system-ui'>✈</text></svg>">
+    <title>Trip Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, 'Helvetica Neue', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: #f5f5f5;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+            padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) 
+                     env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+            background: #ffffff;
+        }
+        
+        .app-container {
+            max-width: 430px;
+            width: 100%;
+            background: #ffffff;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 8px 16px 120px;
+            position: relative;
+            overflow-y: auto;
+        }
+        
+        /* ===== STATUS BAR ===== */
+        .status-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #000000;
+            border-radius: 28px;
+            padding: 10px 18px;
+            margin: 4px 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 48px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .status-icon {
+            font-size: 18px;
+            width: 28px;
+            text-align: center;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+        
+        .status-text {
+            color: rgba(255,255,255,0.9);
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: 0.2px;
+        }
+        
+        .status-time {
+            color: #ffd700;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255,215,0,0.12);
+            padding: 3px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .status-reminder {
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 500;
+            background: rgba(255,59,48,0.2);
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,59,48,0.2);
+            white-space: nowrap;
+            flex-shrink: 0;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        .status-empty {
+            color: rgba(255,255,255,0.3);
+            font-size: 11px;
+            font-weight: 400;
+        }
+        
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0 16px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        .header-left h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+            letter-spacing: -0.5px;
+        }
+        
+        .header-left .sub {
+            font-size: 12px;
+            color: #888888;
+            font-weight: 400;
+            margin-top: 2px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #e8e8e8;
+            background: #ffffff;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            touch-action: manipulation;
+            color: #000000;
+        }
+        
+        .btn-icon:active {
+            transform: scale(0.92);
+            background: #f5f5f5;
+        }
+        
+        /* ===== STATS ===== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 16px 0 20px;
+        }
+        
+        .stat-card {
+            background: #f8f8f8;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .stat-card .num {
+            font-size: 20px;
+            font-weight: 700;
+            color: #000000;
+            display: block;
+        }
+        
+        .stat-card .label {
+            font-size: 10px;
+            color: #888888;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+        
+        /* ===== ITINERARY ===== */
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000000;
+            padding: 8px 0 12px;
+            letter-spacing: -0.2px;
+        }
+        
+        .itinerary-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+            max-height: 520px;
+            overflow-y: auto;
+            padding-right: 2px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .itinerary-grid::-webkit-scrollbar {
+            width: 2px;
+        }
+        
+        .itinerary-grid::-webkit-scrollbar-thumb {
+            background: #d0d0d0;
+            border-radius: 10px;
+        }
+        
+        /* ===== ITEM CARDS ===== */
+        .itinerary-item {
+            background: #f8f8f8;
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid #f0f0f0;
+            transition: all 0.15s;
+            touch-action: manipulation;
+            position: relative;
+        }
+        
+        .itinerary-item:active {
+            transform: scale(0.98);
+        }
+        
+        .item-time {
+            min-width: 48px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+        
+        .item-time .time {
+            font-weight: 700;
+            font-size: 14px;
+            color: #000000;
+        }
+        
+        .item-time .ampm {
+            font-size: 9px;
+            font-weight: 600;
+            color: #888888;
+            text-transform: uppercase;
+            display: block;
+        }
+        
+        .item-dot {
+            width: 3px;
+            height: 32px;
+            background: #d0d0d0;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        
+        .item-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .item-content .activity {
+            font-weight: 600;
+            font-size: 15px;
+            color: #000000;
+        }
+        
+        .item-content .meta {
+            font-size: 11px;
+            color: #888888;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .item-content .meta .tag {
+            background: #e8e8e8;
+            padding: 1px 10px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 500;
+            color: #666666;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+        
+        .item-actions button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            color: #666666;
+        }
+        
+        .item-actions button:active {
+            transform: scale(0.85);
+            background: #e8e8e8;
+        }
+        
+        .item-actions .delete:active {
+            background: #fee8e8;
+            color: #ff3b30;
+        }
+        
+        /* Ticket style */
+        .itinerary-item.has-ticket {
+            border-left: 3px solid #000000;
+        }
+        
+        /* ===== INPUT SECTION ===== */
+        .input-section {
+            background: #f8f8f8;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #f0f0f0;
+            margin-top: 4px;
+        }
+        
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 0 4px 0 14px;
+            border: 1px solid #e8e8e8;
+            flex: 1 1 100px;
+            min-height: 40px;
+        }
+        
+        .input-group label {
+            font-size: 14px;
+            opacity: 0.4;
+            font-weight: 300;
+        }
+        
+        .input-group input, .input-group select {
+            border: none;
+            background: transparent;
+            padding: 8px 4px;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            color: #000000;
+            min-height: 32px;
+            font-weight: 500;
+        }
+        
+        .input-group input::placeholder {
+            color: #b0b0b0;
+            font-weight: 400;
+        }
+        
+        .input-group select {
+            appearance: none;
+            -webkit-appearance: none;
+            font-weight: 500;
+        }
+        
+        .btn-add {
+            background: #000000;
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+            min-height: 44px;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 1 auto;
+            letter-spacing: 0.3px;
+        }
+        
+        .btn-add:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+        
+        .btn-add .plus {
+            font-size: 18px;
+            font-weight: 300;
+        }
+        
+        /* ===== TICKET MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 380px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .modal h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 4px;
+        }
+        
+        .modal .subtitle {
+            font-size: 13px;
+            color: #888888;
+            margin-bottom: 16px;
+        }
+        
+        .modal .ticket-field {
+            margin-bottom: 12px;
+        }
+        
+        .modal .ticket-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .modal .ticket-field input, .modal .ticket-field textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e8e8e8;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #f8f8f8;
+            color: #000000;
+            outline: none;
+            transition: 0.15s;
+        }
+        
+        .modal .ticket-field input:focus, .modal .ticket-field textarea:focus {
+            border-color: #000000;
+            background: #ffffff;
+        }
+        
+        .modal .ticket-field textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .modal .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .modal .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 16px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: 0.15s;
+        }
+        
+        .modal .modal-actions .btn-save {
+            background: #000000;
+            color: #ffffff;
+        }
+        
+        .modal .modal-actions .btn-save:active {
+            opacity: 0.7;
+        }
+        
+        .modal .modal-actions .btn-cancel {
+            background: #f0f0f0;
+            color: #666666;
+        }
+        
+        .modal .modal-actions .btn-cancel:active {
+            background: #e0e0e0;
+        }
+        
+        /* ===== BOTTOM NAV ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid #e8e8e8;
+            padding: 8px 16px;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 430px;
+            margin: 0 auto;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            font-size: 9px;
+            color: #888888;
+            cursor: pointer;
+            padding: 4px 12px;
+            transition: all 0.15s;
+            touch-action: manipulation;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        
+        .nav-item .nav-icon {
+            font-size: 20px;
+            line-height: 1;
+        }
+        
+        .nav-item.active {
+            color: #000000;
+        }
+        
+        .nav-item:active {
+            transform: scale(0.9);
+        }
+        
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #b0b0b0;
+        }
+        
+        .empty-state .icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+        
+        .empty-state .text {
+            font-size: 15px;
+            font-weight: 500;
+            color: #666666;
+        }
+        
+        .empty-state .sub {
+            font-size: 12px;
+            color: #b0b0b0;
+            margin-top: 4px;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 430px) {
+            .app-container {
+                padding: 8px 12px 120px;
+            }
+            .stats-bar {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px;
+            }
+            .stat-card .num {
+                font-size: 17px;
+            }
+            .input-row {
+                flex-direction: column;
+            }
+            .btn-add {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* ===== DARK MODE ===== */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #000000;
+            }
+            .app-container {
+                background: #000000;
+            }
+            .header {
+                border-bottom-color: #1c1c1c;
+            }
+            .header-left h1 {
+                color: #ffffff;
+            }
+            .stat-card {
+                background: #1c1c1c;
+                border-color: #282828;
+            }
+            .stat-card .num {
+                color: #ffffff;
+            }
+            .stat-card .label {
+                color: #666666;
+            }
+            .itinerary-item {
+                background: #1c1c1c;
+                border-color: #282828;
+            }
+            .item-content .activity {
+                color: #ffffff;
+            }
+            .item-time .time {
+                color: #ffffff;
+            }
+            .item-content .meta .tag {
+                background: #282828;
+                color: #888888;
+            }
+            .input-section {
+                background: #1c1c1c;
+                border-color: #282828;
+            }
+            .input-group {
+                background: #282828;
+                border-color: #333333;
+            }
+            .input-group input {
+                color: #ffffff;
+            }
+            .input-group input::placeholder {
+                color: #666666;
+            }
+            .btn-icon {
+                background: #1c1c1c;
+                border-color: #333333;
+                color: #ffffff;
+            }
+            .btn-icon:active {
+                background: #282828;
+            }
+            .bottom-nav {
+                background: rgba(0,0,0,0.95);
+                border-top-color: #1c1c1c;
+            }
+            .nav-item {
+                color: #666666;
+            }
+            .nav-item.active {
+                color: #ffffff;
+            }
+            .modal {
+                background: #1c1c1c;
+            }
+            .modal h2 {
+                color: #ffffff;
+            }
+            .modal .subtitle {
+                color: #666666;
+            }
+            .modal .ticket-field input, .modal .ticket-field textarea {
+                background: #282828;
+                border-color: #333333;
+                color: #ffffff;
+            }
+            .modal .ticket-field input:focus, .modal .ticket-field textarea:focus {
+                border-color: #666666;
+                background: #1c1c1c;
+            }
+            .modal .modal-actions .btn-cancel {
+                background: #282828;
+                color: #888888;
+            }
+            .status-bar {
+                background: #1c1c1c;
+                border-color: #282828;
+            }
+            .section-title {
+                color: #ffffff;
+            }
+            .empty-state .text {
+                color: #888888;
+            }
+            .empty-state .sub {
+                color: #444444;
+            }
+            .header-left .sub {
+                color: #666666;
+            }
+            .itinerary-item.has-ticket {
+                border-left-color: #ffffff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="app">
+        
+        <!-- ===== STATUS BAR ===== -->
+        <div class="status-bar" id="statusBar">
+            <div class="status-left">
+                <span class="status-icon">✈</span>
+                <span class="status-text" id="statusText">No upcoming events</span>
+            </div>
+            <div id="statusRight">
+                <span class="status-empty" id="statusEmpty">—</span>
+            </div>
+        </div>
+        
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <div class="header-left">
+                <h1>My Trip</h1>
+                <div class="sub" id="dateDisplay">Today</div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="exportBtn" title="Export Data">⬇</button>
+                <button class="btn-icon" id="sortBtn" title="Sort">↕</button>
+            </div>
+        </div>
+        
+        <!-- ===== STATS ===== -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <span class="num" id="totalCount">0</span>
+                <span class="label">Activities</span>
+            </div>
+            <div class="stat-card">
+                <span class="num" id="ticketCount">0</span>
+                <span class="label">Tickets</span>
+            </div>
+            <div class="stat-card">
+                <span class="num" id="nextTime">--</span>
+                <span class="label">Next Up</span>
+            </div>
+        </div>
+        
+        <!-- ===== ITINERARY ===== -->
+        <div class="section-title">📋 Today's Schedule</div>
+        
+        <div class="itinerary-grid" id="itineraryList">
+            <div class="empty-state">
+                <span class="icon">📅</span>
+                <div class="text">No activities planned</div>
+                <div class="sub">Add your first stop below</div>
+            </div>
+        </div>
+        
+        <!-- ===== INPUT ===== -->
+        <div class="input-section">
+            <div class="input-row">
+                <div class="input-group" style="flex: 2;">
+                    <label>📍</label>
+                    <input type="text" id="activityInput" placeholder="Activity name">
+                </div>
+                <div class="input-group" style="flex: 0.8;">
+                    <label>⏰</label>
+                    <input type="time" id="timeInput" value="09:00">
+                </div>
+            </div>
+            <div class="input-row" style="margin-top: 8px;">
+                <div class="input-group" style="flex: 1.5;">
+                    <label>📝</label>
+                    <input type="text" id="noteInput" placeholder="Note">
+                </div>
+                <div class="input-group" style="flex: 0.8;">
+                    <label>🎫</label>
+                    <select id="ticketSelect">
+                        <option value="none">No ticket</option>
+                        <option value="general">General</option>
+                        <option value="vip">VIP</option>
+                        <option value="student">Student</option>
+                        <option value="free">Free</option>
+                    </select>
+                </div>
+                <button class="btn-add" id="addBtn"><span class="plus">+</span> Add</button>
+            </div>
+        </div>
+        
+        <!-- ===== TICKET MODAL ===== -->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <h2>🎫 Ticket Details</h2>
+                <div class="subtitle" id="modalActivityName">Activity Name</div>
+                
+                <div class="ticket-field">
+                    <label>Ticket Type</label>
+                    <input type="text" id="modalTicketType" placeholder="e.g., General, VIP, Student">
+                </div>
+                
+                <div class="ticket-field">
+                    <label>Ticket Code / Barcode</label>
+                    <input type="text" id="modalTicketCode" placeholder="Enter ticket number or code">
+                </div>
+                
+                <div class="ticket-field">
+                    <label>Notes</label>
+                    <textarea id="modalTicketNotes" placeholder="Additional ticket info..."></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-cancel" id="modalCancel">Cancel</button>
+                    <button class="btn-save" id="modalSave">Save Ticket</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== BOTTOM NAV ===== -->
+        <div class="bottom-nav">
+            <button class="nav-item active" id="navToday">
+                <span class="nav-icon">📅</span>
+                Today
+            </button>
+            <button class="nav-item" id="navClear">
+                <span class="nav-icon">🗑</span>
+                Clear
+            </button>
+            <button class="nav-item" id="navExample">
+                <span class="nav-icon">✨</span>
+                Sample
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        (function() {
+            // ===== STATE =====
+            let items = [];
+            let currentEditIndex = -1;
+            
+            // ===== DOM REFS =====
+            const listEl = document.getElementById('itineraryList');
+            const activityInput = document.getElementById('activityInput');
+            const timeInput = document.getElementById('timeInput');
+            const noteInput = document.getElementById('noteInput');
+            const ticketSelect = document.getElementById('ticketSelect');
+            const addBtn = document.getElementById('addBtn');
+            const totalCount = document.getElementById('totalCount');
+            const ticketCount = document.getElementById('ticketCount');
+            const nextTime = document.getElementById('nextTime');
+            const dateDisplay = document.getElementById('dateDisplay');
+            const statusText = document.getElementById('statusText');
+            const statusEmpty = document.getElementById('statusEmpty');
+            const statusBar = document.getElementById('statusBar');
+            const sortBtn = document.getElementById('sortBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const navToday = document.getElementById('navToday');
+            const navClear = document.getElementById('navClear');
+            const navExample = document.getElementById('navExample');
+            
+            // Modal refs
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalActivityName = document.getElementById('modalActivityName');
+            const modalTicketType = document.getElementById('modalTicketType');
+            const modalTicketCode = document.getElementById('modalTicketCode');
+            const modalTicketNotes = document.getElementById('modalTicketNotes');
+            const modalSave = document.getElementById('modalSave');
+            const modalCancel = document.getElementById('modalCancel');
+            
+            // ===== STORAGE =====
+            function saveData() {
+                try {
+                    localStorage.setItem('itinerary_data', JSON.stringify(items));
+                } catch(e) {
+                    console.warn('Could not save:', e);
+                }
+            }
+            
+            function loadData() {
+                try {
+                    const data = localStorage.getItem('itinerary_data');
+                    if (data) {
+                        items = JSON.parse(data);
+                        return true;
+                    }
+                } catch(e) {
+                    console.warn('Could not load:', e);
+                }
+                return false;
+            }
+            
+            // ===== DATE =====
+            function updateDate() {
+                const now = new Date();
+                const options = { weekday: 'short', month: 'short', day: 'numeric' };
+                dateDisplay.textContent = now.toLocaleDateString('en-US', options);
+            }
+            updateDate();
+            
+            // ===== HELPERS =====
+            function formatTimeDisplay(timeStr) {
+                if (!timeStr) return '--:--';
+                try {
+                    const [h, m] = timeStr.split(':').map(Number);
+                    if (isNaN(h) || isNaN(m)) return timeStr;
+                    const ampm = h >= 12 ? 'PM' : 'AM';
+                    const hour12 = h % 12 || 12;
+                    return `${hour12}:${m.toString().padStart(2, '0')}`;
+                } catch { return timeStr; }
+            }
+            
+            function getAmPm(timeStr) {
+                if (!timeStr) return '';
+                try {
+                    const [h] = timeStr.split(':').map(Number);
+                    return h >= 12 ? 'PM' : 'AM';
+                } catch { return ''; }
+            }
+            
+            function escapeHTML(text) {
+                if (!text) return '';
+                return String(text).replace(/[&<>"]/g, m => {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    if (m === '"') return '&quot;';
+                    return m;
+                });
+            }
+            
+            function getNextItem() {
+                const now = new Date();
+                const nowMinutes = now.getHours() * 60 + now.getMinutes();
+                let sorted = [...items].sort((a, b) => {
+                    const [ah, am] = (a.time || '00:00').split(':').map(Number);
+                    const [bh, bm] = (b.time || '00:00').split(':').map(Number);
+                    return (ah * 60 + am) - (bh * 60 + bm);
+                });
+                for (let item of sorted) {
+                    const [h, m] = (item.time || '00:00').split(':').map(Number);
+                    const itemMinutes = h * 60 + m;
+                    if (itemMinutes >= nowMinutes) return item;
+                }
+                return sorted[0] || null;
+            }
+            
+            function getTicketCount() {
+                return items.filter(item => item.ticket && item.ticket !== 'none' && item.ticketType).length;
+            }
+            
+            function getTimeUntil(event) {
+                const now = new Date();
+                const [h, m] = (event.time || '00:00').split(':').map(Number);
+                const eventTime = new Date();
+                eventTime.setHours(h, m, 0, 0);
+                const diff = eventTime - now;
+                if (diff < 0) return null;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                return { hours, minutes };
+            }
+            
+            // ===== UPDATE STATUS =====
+            function updateStatus() {
+                const next = getNextItem();
+                if (next) {
+                    const timeStr = formatTimeDisplay(next.time);
+                    statusText.textContent = `📍 ${escapeHTML(next.activity)}`;
+                    const timeUntil = getTimeUntil(next);
+                    if (timeUntil && timeUntil.hours < 2) {
+                        statusBar.style.background = '#1a1a2e';
+                        statusBar.style.borderColor = 'rgba(255,215,0,0.2)';
+                        const mins = timeUntil.hours * 60 + timeUntil.minutes;
+                        statusEmpty.textContent = `🔔 ${mins}m`;
+                        statusEmpty.className = 'status-reminder';
+                    } else {
+                        statusBar.style.background = '#000000';
+                        statusBar.style.borderColor = 'rgba(255,255,255,0.08)';
+                        statusEmpty.textContent = `${timeStr}`;
+                        statusEmpty.className = 'status-time';
+                    }
+                } else if (items.length > 0) {
+                    statusText.textContent = `📋 ${items.length} activities planned`;
+                    statusBar.style.background = '#000000';
+                    statusBar.style.borderColor = 'rgba(255,255,255,0.08)';
+                    statusEmpty.textContent = '✓';
+                    statusEmpty.className = 'status-empty';
+                } else {
+                    statusText.textContent = '✈ Plan your trip';
+                    statusBar.style.background = '#000000';
+                    statusBar.style.borderColor = 'rgba(255,255,255,0.08)';
+                    statusEmpty.textContent = '—';
+                    statusEmpty.className = 'status-empty';
+                }
+            }
+            
+            // ===== UPDATE STATS =====
+            function updateStats() {
+                totalCount.textContent = items.length;
+                ticketCount.textContent = getTicketCount();
+                const next = getNextItem();
+                nextTime.textContent = next ? formatTimeDisplay(next.time) : '--';
+            }
+            
+            // ===== OPEN TICKET MODAL =====
+            function openTicketModal(index) {
+                currentEditIndex = index;
+                const item = items[index];
+                modalActivityName.textContent = escapeHTML(item.activity);
+                modalTicketType.value = item.ticketType || '';
+                modalTicketCode.value = item.ticketCode || '';
+                modalTicketNotes.value = item.ticketNotes || '';
+                modalOverlay.classList.add('show');
+            }
+            
+            // ===== CLOSE MODAL =====
+            function closeModal() {
+                modalOverlay.classList.remove('show');
+                currentEditIndex = -1;
+            }
+            
+            // ===== RENDER =====
+            function render() {
+                if (items.length === 0) {
+                    listEl.innerHTML = `
+                        <div class="empty-state">
+                            <span class="icon">📅</span>
+                            <div class="text">No activities planned</div>
+                            <div class="sub">Add your first stop below</div>
+                        </div>
+                    `;
+                    updateStats();
+                    updateStatus();
+                    saveData();
+                    return;
+                }
+                
+                const sorted = [...items].sort((a, b) => {
+                    const [ah, am] = (a.time || '00:00').split(':').map(Number);
+                    const [bh, bm] = (b.time || '00:00').split(':').map(Number);
+                    return (ah * 60 + am) - (bh * 60 + bm);
+                });
+                
+                let html = '';
+                sorted.forEach((item, idx) => {
+                    const originalIndex = items.indexOf(item);
+                    const timeStr = formatTimeDisplay(item.time);
+                    const ampm = getAmPm(item.time);
+                    const hasTicket = item.ticket && item.ticket !== 'none' && item.ticketType;
+                    const ticketLabel = hasTicket ? '🎫' : '';
+                    const note = item.note || '';
+                    
+                    html += `
+                        <div class="itinerary-item ${hasTicket ? 'has-ticket' : ''}" data-index="${originalIndex}">
+                            <div class="item-time">
+                                <span class="time">${timeStr}</span>
+                                <span class="ampm">${ampm}</span>
+                            </div>
+                            <div class="item-dot"></div>
+                            <div class="item-content">
+                                <div class="activity">${escapeHTML(item.activity)} ${ticketLabel}</div>
+                                <div class="meta">
+                                    ${note ? `<span>📝 ${escapeHTML(note)}</span>` : ''}
+                                    ${hasTicket ? `<span class="tag">${escapeHTML(item.ticketType)}</span>` : ''}
+                                    ${item.ticketCode ? `<span>🔑 ${escapeHTML(item.ticketCode)}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="ticket" data-idx="${originalIndex}" aria-label="Ticket">🎫</button>
+                                <button class="edit" data-idx="${originalIndex}" aria-label="Edit">✏️</button>
+                                <button class="delete" data-idx="${originalIndex}" aria-label="Delete">🗑</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                listEl.innerHTML = html;
+                
+                // Attach events
+                document.querySelectorAll('.ticket').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const idx = parseInt(this.getAttribute('data-idx'), 10);
+                        if (!isNaN(idx) && idx >= 0 && idx < items.length) {
+                            openTicketModal(idx);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.edit').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const idx = parseInt(this.getAttribute('data-idx'), 10);
+                        if (!isNaN(idx) && idx >= 0 && idx < items.length) {
+                            const item = items[idx];
+                            activityInput.value = item.activity || '';
+                            timeInput.value = item.time || '09:00';
+                            noteInput.value = item.note || '';
+                            ticketSelect.value = item.ticket || 'none';
+                            items.splice(idx, 1);
+                            render();
+                            activityInput.focus();
+                            activityInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.delete').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const idx = parseInt(this.getAttribute('data-idx'), 10);
+                        if (!isNaN(idx) && idx >= 0 && idx < items.length) {
+                            if (confirm(`Delete "${items[idx].activity}"?`)) {
+                                items.splice(idx, 1);
+                                render();
+                            }
+                        }
+                    });
+                });
+                
+                updateStats();
+                updateStatus();
+                saveData();
+            }
+            
+            // ===== ADD ITEM =====
+            function addItem() {
+                let activity = activityInput.value.trim();
+                let time = timeInput.value;
+                let note = noteInput.value.trim();
+                let ticket = ticketSelect.value;
+                
+                if (!activity) {
+                    activityInput.style.borderColor = '#ff3b30';
+                    activityInput.placeholder = '⚠️ Please enter an activity';
+                    setTimeout(() => {
+                        activityInput.style.borderColor = '#e8e8e8';
+                        activityInput.placeholder = 'Activity name';
+                    }, 1500);
+                    activityInput.focus();
+                    return;
+                }
+                if (!time) {
+                    time = '09:00';
+                    timeInput.value = time;
+                }
+                
+                items.push({ 
+                    activity, 
+                    time, 
+                    note, 
+                    ticket: ticket,
+                    ticketType: '',
+                    ticketCode: '',
+                    ticketNotes: ''
+                });
+                
+                render();
+                noteInput.value = '';
+                ticketSelect.value = 'none';
+                activityInput.value = '';
+                activityInput.focus();
+                listEl.scrollTop = listEl.scrollHeight;
+            }
+            
+            // ===== LOAD SAMPLE =====
+            function loadSample() {
+                if (items.length > 0) {
+                    if (!confirm('This will replace your current itinerary. Continue?')) return;
+                }
+                items = [
+                    { activity: 'Morning Coffee', time: '08:30', note: 'Try the croissant', ticket: 'none', ticketType: '', ticketCode: '', ticketNotes: '' },
+                    { activity: 'Art Museum', time: '10:00', note: 'Buy tickets online', ticket: 'student', ticketType: 'Student', ticketCode: 'MUS-2024-001', ticketNotes: 'Student ID required' },
+                    { activity: 'Lunch Break', time: '12:45', note: 'Reserve a table', ticket: 'none', ticketType: '', ticketCode: '', ticketNotes: '' },
+                    { activity: 'Walking Tour', time: '14:30', note: 'Meet at the fountain', ticket: 'free', ticketType: 'Free', ticketCode: 'TOUR-FREE', ticketNotes: 'No ticket needed' },
+                    { activity: 'Theater Show', time: '19:00', note: 'Dress code: smart', ticket: 'vip', ticketType: 'VIP', ticketCode: 'VIP-2024-007', ticketNotes: 'Includes backstage access' },
+                ];
+                render();
+                listEl.scrollTop = 0;
+            }
+            
+            // ===== CLEAR =====
+            function clearAll() {
+                if (items.length === 0) return;
+                if (confirm('Clear all activities?')) {
+                    items = [];
+                    render();
+                    activityInput.focus();
+                }
+            }
+            
+            // ===== SORT =====
+            function toggleSort() {
+                items.reverse();
+                render();
+            }
+            
+            // ===== EXPORT =====
+            function exportData() {
+                if (items.length === 0) {
+                    alert('No data to export.');
+                    return;
+                }
+                const data = JSON.stringify(items, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `itinerary_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+            
+            // ===== MODAL SAVE =====
+            function saveTicket() {
+                if (currentEditIndex < 0 || currentEditIndex >= items.length) return;
+                const item = items[currentEditIndex];
+                item.ticketType = modalTicketType.value.trim() || 'General';
+                item.ticketCode = modalTicketCode.value.trim();
+                item.ticketNotes = modalTicketNotes.value.trim();
+                item.ticket = 'custom';
+                closeModal();
+                render();
+            }
+            
+            // ===== INIT =====
+            function init() {
+                // Load data
+                const hasData = loadData();
+                if (!hasData || items.length === 0) {
+                    loadSample();
+                } else {
+                    render();
+                }
+                
+                // Add button
+                addBtn.addEventListener('click', addItem);
+                
+                // Enter key
+                [activityInput, timeInput, noteInput].forEach(input => {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addItem();
+                        }
+                    });
+                });
+                
+                // Bottom nav
+                navClear.addEventListener('click', clearAll);
+                navExample.addEventListener('click', loadSample);
+                navToday.addEventListener('click', () => {
+                    listEl.scrollTop = 0;
+                });
+                
+                // Header buttons
+                sortBtn.addEventListener('click', toggleSort);
+                exportBtn.addEventListener('click', exportData);
+                
+                // Modal
+                modalCancel.addEventListener('click', closeModal);
+                modalSave.addEventListener('click', saveTicket);
+                modalOverlay.addEventListener('click', function(e) {
+                    if (e.target === this) closeModal();
+                });
+                
+                // Prevent double-tap zoom
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', function(e) {
+                    const now = Date.now();
+                    if (now - lastTouchEnd <= 300) {
+                        e.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                }, { passive: false });
+                
+                // Auto-save on any change
+                setInterval(() => saveData(), 30000);
+            }
+            
+            init();
+        })();
+    </script>
+</body>
+</html>
